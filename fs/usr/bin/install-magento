@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+# Clone the Magento repo
+mysqld_safe &
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition $MAGEDIR
+
+# Setup the required permissions
+chown -R nginx:nginx $MAGEDIR
+cd $MAGEDIR
+find var vendor pub/static pub/media app/etc -type f -exec chmod u+w {} \;
+find var vendor pub/static pub/media app/etc -type d -exec chmod u+w {} \;
+chmod u+x bin/magento
+
+# Start mysql server. Install Magento. Kill mysql server
+mysql -e 'CREATE DATABASE magento2;'
+sudo -u nginx bin/magento setup:install \
+    --admin-firstname "Admin" \
+    --admin-lastname "User" \
+    --admin-email "admin@example.com" \
+    --admin-user "admin" \
+    --admin-password "password1" \
+    --base-url "$MAGEURL" \
+    --backend-frontname "admin"
+chmod -R 777 var
+killall mysqld_safe
