@@ -15,7 +15,7 @@ RUN apk add --no-cache mysql mysql-client \
 # Setup php7
 RUN apk add --no-cache php7 php7-fpm php7-phar php7-iconv php7-mbstring \
     php7-curl php7-gd php7-intl php7-mcrypt php7-openssl php7-pdo_mysql \
-    php7-xml php7-soap php7-xsl php7-zip php7-json php7-ctype php7-session \
+    php7-xml php7-soap php7-xsl php7-zip php7-json php7-ctype php7-session php7-zlib \
     && wget -O /usr/bin/composer http://getcomposer.org/download/1.4.2/composer.phar \
     && chmod +x /usr/bin/composer \
     && ln -s /usr/bin/php7 /usr/bin/php
