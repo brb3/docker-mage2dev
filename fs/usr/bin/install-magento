@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-# Clone the Magento repo
+# Start mysql server. Clone the Magento repo
 mysqld_safe &
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition $MAGEDIR
 
@@ -11,7 +11,7 @@ find var vendor pub/static pub/media app/etc -type f -exec chmod u+w {} \;
 find var vendor pub/static pub/media app/etc -type d -exec chmod u+w {} \;
 chmod u+x bin/magento
 
-# Start mysql server. Install Magento. Kill mysql server
+# Install Magento.
 mysql -e 'CREATE DATABASE magento2;'
 sudo -u nginx bin/magento setup:install \
     --admin-firstname "Admin" \
@@ -22,4 +22,10 @@ sudo -u nginx bin/magento setup:install \
     --base-url "$MAGEURL" \
     --backend-frontname "admin"
 chmod -R 777 var
+
+# Patch zendframework to work with musl. Compile assets. Kill mysql server
+sed -i -e 's/GLOB_BRACE,/0,/' $MAGEDIR/vendor/zendframework/zend-stdlib/src/Glob.php
+chown -R nginx:nginx $MAGEDIR
+sudo -u nginx bin/magento setup:di:compile
+sudo -u nginx bin/magento setup:static-content:deploy
 killall mysqld_safe
